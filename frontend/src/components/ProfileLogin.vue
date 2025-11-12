@@ -7,9 +7,11 @@ import { ref } from 'vue';
 import { useUser } from '@/shared/stores';
 import type { LoginForm } from '@/shared/interfaces';
 import FormInput from '@/components/forms/FormInput.vue';
+import AppSpinner from '@/components/AppSpinner.vue';
 
 const router = useRouter();
 const userStore = useUser();
+const loading = ref(false);
 const errorMsg = ref('');
 
 const schema = Yup.object().shape({
@@ -20,13 +22,16 @@ const schema = Yup.object().shape({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onSubmit = async (formValues: Record<string, any>) => {
   try {
+    loading.value = true;
     await userStore.login(formValues as LoginForm).then(() => {
       errorMsg.value = '';
+      loading.value = false;
       router.push('/');
     });
   } catch (e) {
     errorMsg.value = e as string;
-  }
+    loading.value = false;
+  } 
 };
 </script>
 
@@ -62,9 +67,11 @@ const onSubmit = async (formValues: Record<string, any>) => {
         </div>
         <button
           type="submit"
+          :disabled="loading"
           class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
         >
-          Connecter
+          <AppSpinner v-if="loading" class="mx-auto h-6 w-6" />
+          <span v-else>Connecter</span>
         </button>
         <p class="text-sm font-light text-gray-500 dark:text-gray-400">
           Vous n'avez pas encore un compte?

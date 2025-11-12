@@ -3,11 +3,11 @@ import { onMounted, ref } from 'vue';
 import { storeToRefs } from 'pinia';
 
 import { useTodo } from '@/shared/stores';
-import TodoItem from './TodoItem.vue';
-import AppSpinner from './AppSpinner.vue';
+import TodoItem from '@/components/TodoItem.vue';
+import AppSpinner from '@/components/AppSpinner.vue';
 
 const todoStore = useTodo();
-const { allTodo, loaded } = storeToRefs(todoStore);
+const { allTodo, loading } = storeToRefs(todoStore);
 
 onMounted(async () => await todoStore.fetchAllTodo());
 
@@ -104,8 +104,8 @@ const clearSearchTodo = async () => {
           </div>
         </form>
       </div>
-      <template v-if="!loaded">
-        <AppSpinner />
+      <template v-if="loading">
+        <AppSpinner class="w-8 h-8"/>
       </template>
       <template v-else>
         <ul role="list" class="mt-2 flex flex-col list-none">
