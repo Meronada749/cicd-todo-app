@@ -16,7 +16,7 @@ const UserController = {
       password: await bcrypt.hash(password, 8)
     })
       .then((result) => {
-        return res.status(201).json(cleanUser(result));
+        return res.status(201).json({ user: cleanUser(result) });
       })
       .catch((error) => {
         console.error('ADD USER: ', error);
@@ -37,7 +37,7 @@ const UserController = {
     })
       .then((result) => {
         if (result) {
-          return res.status(200).json(result);
+          return res.status(200).json({ user: result });
         } else {
           return res.status(404);
         }
@@ -62,7 +62,7 @@ const UserController = {
       await user
         .save()
         .then((result) => {
-          return res.status(200).json(result);
+          return res.status(200).json({ user: cleanUser(result) });
         })
         .catch((error) => {
           console.error('UPDATE USER: ', error);

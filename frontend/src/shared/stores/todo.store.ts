@@ -13,16 +13,17 @@ interface ResponseTodoData {
 
 interface TodoState {
   allTodo: Todo[] | null;
-  loaded: boolean | false;
+  loading: boolean | false;
 }
 
 export const useTodo = defineStore('todo', {
   state: (): TodoState => ({
     allTodo: null,
-    loaded: false
+    loading: false
   }),
   actions: {
     async createTodo(todoForm: TodoForm) {
+      this.loading = true;
       await createTodo(todoForm).then((response: ResponseData) => {
         const todoResponse = response as unknown as ResponseTodoData;
         // normalize response to Todo (convert date string to Date)
@@ -39,6 +40,7 @@ export const useTodo = defineStore('todo', {
             (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
           );
         }
+        this.loading = false;
       });
     },
     async updateTodo(id: string, todoForm: TodoUpdateForm) {
@@ -70,12 +72,17 @@ export const useTodo = defineStore('todo', {
       });
     },
     async fetchAllTodo() {
+      this.loading = true;
       this.allTodo = await fetchAllTodo();
-      this.loaded = true;
+      this.loading = false;
     },
     async fetchSearchTodo(query: string) {
+      this.loading = true;
       this.allTodo = await fetchSearchTodo(query);
-      this.loaded = true;
+      if(!this.allTodo) {
+        this.allTodo = [];
+      }
+      this.loading = false;
     }
   }
 });

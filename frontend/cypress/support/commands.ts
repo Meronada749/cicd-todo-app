@@ -41,15 +41,24 @@ Cypress.Commands.add("createUser", (email: string, password: string) => {
 });
 
 Cypress.Commands.add('login', (email: string, password: string) => {
-  // send login request
-  cy.request('POST', `${Cypress.env('BACKEND_URL') as string}/api/auth`, {
+  cy.session(
     email,
-    password,
-  }).then((response) => {
-    // save JWT token to local storage
-    window.localStorage.setItem('token', response.body.token);
-  });
+    () => {
+      cy.visit('/login');
+      cy.get('input[name=email]').type(email);
+      cy.get('input[name=password]').type(`${password}{enter}`, { log: false });
+      cy.url().should('include', '/');
+    },
+    {
+      validate: () => {
+        cy.window().then((win) => {
+          expect(win.localStorage.getItem('token')).to.be.a('string');
+        });
+      },
+    }
+  )
 });
+
 
   
 // Augment Cypress types to include our custom commands so their string names are accepted.

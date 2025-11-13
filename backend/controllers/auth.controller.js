@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 
-const UserModel = require('../models').UserModel;
 const { JWT_SECRET } = require('../config/keys');
 
 // remove password from user object

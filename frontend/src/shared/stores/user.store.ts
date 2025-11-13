@@ -18,22 +18,20 @@ interface ResponseData {
 interface UserState {
   currentUser: User | null;
   returnUrl: string | null;
-  loaded: boolean;
   token: string;
 }
 
 export const useUser = defineStore('user', {
   state: (): UserState => ({
-    currentUser: JSON.parse(localStorage.getItem('user') || '""'),
+    currentUser: null,
     returnUrl: null,
-    loaded: false,
     token: localStorage.getItem('token') || ''
   }),
   getters: {
     isAuthenticated(state): boolean | null {
-      if (state.currentUser) {
+      if (state.currentUser && state.token) {
         return true;
-      } else if (!state.currentUser && state.loaded) {
+      } else if (!state.currentUser || !state.token) {
         return false;
       } else {
         return null;
@@ -50,8 +48,7 @@ export const useUser = defineStore('user', {
         this.token = response.token;
       }
 
-      // store user details and jwt in local storage to keep user logged in between page refreshes
-      localStorage.setItem('user', JSON.stringify(this.currentUser));
+      // store jwt in local storage to keep user logged in between page refreshes
       localStorage.setItem('token', this.token);
 
       // redirect to previous url or default to home page
@@ -62,25 +59,20 @@ export const useUser = defineStore('user', {
     logout() {
       this.currentUser = null;
       this.token = '';
-      localStorage.removeItem('user');
       localStorage.removeItem('token');
-      this.loaded = false;
       //router.push('/login'); // not always working, below a workaround
       window.location.href = '/';
     },
     async createUser(userForm: LoginForm) {
       if (!this.currentUser) {
         await createUser(userForm);
-        this.loaded = false;
       }
     },
     async deleteUser() {
       await deleteCurrentUser().then(() => {
         this.currentUser = null;
         this.token = '';
-        localStorage.removeItem('user');
         localStorage.removeItem('token');
-        this.loaded = false;
         router.push({ path: '/login' });
       });
     },
@@ -89,13 +81,17 @@ export const useUser = defineStore('user', {
         const response: ResponseData = await updateCurrentUser(userForm);
         if ('user' in response && response.user) {
           this.currentUser = response.user as User;
+          
         }
-        this.loaded = true;
       }
     },
     async fetchUser() {
-      this.currentUser = await fetchCurrentUser();
-      this.loaded = true;
+      const response = await fetchCurrentUser();
+      if (response === null) {
+        this.currentUser = null;
+      } else if ('user' in response && response.user) {
+        this.currentUser = response.user as User;
+      }
     }
   },
   persist: {

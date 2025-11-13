@@ -18,6 +18,10 @@ const props = defineProps({
   label: {
     type: String,
     required: true
+  },
+  autocomplete: {
+    type: String,
+    default: ''
   }
 });
 
@@ -48,6 +52,7 @@ const {
     @input="handleChange"
     @blur="handleBlur"
     class="border text-md rounded-lg w-full p-2 block"
+    :autocomplete="props.autocomplete"
     :class="
       errorMessage
         ? 'bg-red-50 border-red-500 text-red-500 placeholder-red-500 focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 dark:text-rose-500 dark:placeholder-rose-500 dark:border-rose-500 dark:focus:ring-rose-700 dark:focus:border-rose-700'

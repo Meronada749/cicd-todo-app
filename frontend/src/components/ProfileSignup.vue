@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import { useUser } from '@/shared/stores';
 import type { LoginForm } from '@/shared/interfaces';
 import FormInput from '@/components/forms/FormInput.vue';
+import AppSpinner from '@/components/AppSpinner.vue';
 
 const router = useRouter();
 const userStore = useUser();
@@ -26,9 +27,9 @@ const schema = Yup.object().shape({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onSubmit = async (formValues: Record<string, any>) => {
-  loading.value = true;
   delete formValues.confirmation;
   try {
+    loading.value = true;
     await userStore.createUser(formValues as LoginForm).then(() => {
       errorMsg.value = '';
       loading.value = false;
@@ -62,7 +63,7 @@ const onSubmit = async (formValues: Record<string, any>) => {
           <FormInput name="email" type="email" label="Votre email" />
         </div>
         <div>
-          <FormInput name="password" type="password" label="Mot de passe" />
+          <FormInput name="password" type="password" label="Mot de passe" autocomplete="current-password" />
         </div>
         <div>
           <FormInput name="confirmation" type="password" label="Confirmer votre mot de passe" />
@@ -72,7 +73,8 @@ const onSubmit = async (formValues: Record<string, any>) => {
           :disabled="loading"
           class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-md px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
         >
-          Créer un compte
+          <AppSpinner v-if="loading" class="mx-auto h-6 w-6" />
+          <span v-else>Créer un compte</span>
         </button>
         <p class="text-sm font-light text-gray-500 dark:text-gray-400">
           Avez-vous déjà un compte?

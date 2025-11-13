@@ -41,27 +41,6 @@
         passé sur ces pages, les informations que vous recherchez sur notre site Web, les heures et
         dates d'accès et d'autres statistiques.
       </p>
-      <h2>Achats</h2>
-      <p>
-        Tous les achats effectués via le site Web sont traités par un processeur de paiement tiers,
-        Paddle (<a href="https://paddle.com">paddle.com</a>). Paddle peut vous demander des
-        informations personnelles et/ou non personnelles, telles que votre nom, votre adresse, votre
-        adresse e-mail, vos informations de carte de crédit ou d'autres informations personnelles.
-        Paddle a une politique de confidentialité (<a href="https://paddle.com/legal-buyers/"
-          >paddle.com/legal-buyers/</a
-        >) qui décrit sa collecte et son utilisation des informations personnelles. Matinfo Labs. ne
-        contrôle pas Paddle ni sa collecte ou son utilisation des informations. Toute question ou
-        préoccupation concernant les pratiques de Paddle doit être adressée à Paddle.
-      </p>
-      <p>
-        Paddle nous fournit certaines informations non personnelles relatives aux achats effectués
-        par les visiteurs du site Web. Les informations non personnelles peuvent inclure des détails
-        de l'achat tels que la date, le montant payé et le produit acheté. Les informations d'achat
-        non personnelles peuvent être liées aux informations personnelles que vous nous fournissez
-        (généralement limitées à votre adresse e-mail, comme indiqué ci-dessus). Paddle ne nous
-        fournit aucune de vos autres informations personnelles telles que votre nom, votre adresse
-        postale ou vos informations de carte de crédit.
-      </p>
       <h2>Gestion des informations personnelles</h2>
       <p>
         Vous pouvez mettre à jour vos informations personnelles dans les « Paramètres de votre
@@ -177,14 +156,6 @@
         moins de 13 ans nous a fourni des informations personnelles via notre site Web, veuillez
         nous contacter.
       </p>
-      <h2>Bulletins d'information</h2>
-      <p>
-        Nous proposons des bulletins d'information électroniques auxquels vous pouvez vous abonner
-        volontairement. Vous pouvez choisir de ne plus recevoir notre bulletin d'information ou nos
-        courriels marketing en suivant les instructions de désabonnement incluses dans ces courriels
-        ou en nous contactant. Cependant, vous continuerez à recevoir les courriels transactionnels
-        essentiels.
-      </p>
       <h2>Cookies</h2>
       <p>
         Le site Web utilise des « cookies » pour personnaliser votre expérience en ligne. Un cookie
@@ -212,15 +183,6 @@
         pratiques de confidentialité de ces autres sites Web ou de ces tiers. Nous vous encourageons
         à être vigilant lorsque vous quittez notre site Web et à lire les déclarations de
         confidentialité de chaque site Web susceptible de collecter des informations personnelles.
-      </p>
-      <p>
-        En particulier, comme indiqué ci-dessus, les achats effectués via le site Web sont gérés par
-        Paddle et toutes ces transactions, y compris les informations personnelles ou non
-        personnelles collectées par Paddle, sont sous le contrôle de Paddle. Nous encourageons les
-        acheteurs à lire la politique de confidentialité de Paddle (<a
-          href="https://paddle.com/legal-buyers/"
-          >paddle.com/legal-buyers/</a
-        >).
       </p>
       <h2>Sécurité de l'information</h2>
       <p>
@@ -293,7 +255,6 @@ h2 {
   line-height: 1.4;
 }
 a {
-  color: #2563eb;
   text-decoration: underline;
 }
 </style>
