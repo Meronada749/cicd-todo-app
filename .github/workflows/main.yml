@@ -38,3 +38,29 @@ jobs:
 
       - name: Test the code
         run: npm run test:ci
+
+  check_frontend:
+    name: Frontend CI Checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Tells GitHub to pull your repository’s code into the runner
+        uses: actions/checkout@v4
+
+      - name: Install node so that we can use the npm commands
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit
+        run: npm run audit:ci
+
+      - name: Lint
+        run: npm run lint
