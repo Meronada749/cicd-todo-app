@@ -32,6 +32,11 @@ function createApp() {
   // API routes
   app.use(router);
 
+    // Health check
+  app.get('/health', (req, res) => {
+    res.sendStatus(200);
+  });
+  
   // TEST-ONLY helper: reset DB between specs
   if (process.env.NODE_ENV === 'test') {
     const testApi = require('./routes/test.api');
