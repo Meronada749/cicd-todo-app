@@ -1,46 +1,50 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import Toggle from '@vueform/toggle';
 import { TrashIcon } from '@heroicons/vue/24/outline';
+
 import { useTodo } from '@/shared/stores';
+import { computed } from 'vue';
 
 const todoStore = useTodo();
-const props = defineProps<{
-  todoId: string;
-  todoDate: string;
-  todoText: string;
-  todoCompleted: boolean;
-}>();
 
+const props = defineProps({
+  todoDate: {
+    type: String,
+    required: true
+  },
+  todoText: {
+    type: String,
+    required: true
+  },
+  todoId: {
+    type: String,
+    required: true
+  },
+  todoCompleted: {
+    type: Boolean,
+    required: true
+  }
+});
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toggleTodoCompleted = async (id: string, completed: boolean) => {
+  await todoStore.updateTodo(id, { completed: completed });
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const deleteTodoItem = async (id: string) => {
+  await todoStore.deleteTodo(id);
+};
 
 const emit = defineEmits(['update:todoCompleted']);
 
-const todoCompletedLocal = ref(props.todoCompleted);
-
-// Met à jour automatiquement si le parent change la prop
-watch(
-  () => props.todoCompleted,
-  (newVal) => {
-    todoCompletedLocal.value = newVal;
+const todoCompletedLocal = computed({
+  get: () => props.todoCompleted,
+  set: (value: boolean) => {
+    toggleTodoCompleted(props.todoId, value);
+    emit('update:todoCompleted', value);
   }
-);
-
-// Toggle qui met à jour le store et le ref local
-const toggleTodo = async () => {
-  await todoStore.updateTodo(props.todoId, { completed: todoCompletedLocal.value });
-  emit('update:todoCompleted', todoCompletedLocal.value);
-};
-
-// Supprime la todo
-const deleteTodoItem = async () => {
-  await todoStore.deleteTodo(props.todoId);
-  // Supprime localement l’item pour éviter le rechargement
-
-  todoStore.allTodo = todoStore.allTodo.filter(
-  todo => todo.id !== props.todoId
-);
-
-};
+});
 </script>
 
 <template>
@@ -70,7 +74,6 @@ const deleteTodoItem = async () => {
       <div class="flex flex-1 align-middle justify-end">
         <Toggle
           v-model="todoCompletedLocal"
-          @change="toggleTodo"
           :classes="{
             container:
               'inline-block w-[70px] rounded-full outline-none focus:ring-2 focus:ring-slate-400 focus:ring-opacity-30',
@@ -78,9 +81,15 @@ const deleteTodoItem = async () => {
               'flex w-[68px] h-5 rounded-full relative cursor-pointer transition items-center box-content border-1 text-xs leading-none',
             toggleOn: 'bg-red-500 border-gray-400 justify-start text-gray-800',
             toggleOff: 'bg-green-500 border-gray-400 justify-end text-gray-700',
+            toggleOnDisabled:
+              'bg-green-300 dark:bg-red-500 border-gray-300 justify-start text-gray-200 dark:text-gray-400 cursor-not-allowed',
+            toggleOffDisabled:
+              'bg-green-300 dark:bg-green-500 border-gray-200 justify-end text-gray-200 dark:text-gray-400 cursor-not-allowed',
             handle: 'inline-block bg-white w-5 h-5 top-0 rounded-full absolute transition-all',
             handleOn: 'left-full transform -translate-x-full',
             handleOff: 'left-0',
+            handleOnDisabled: 'bg-gray-100 left-full transform -translate-x-full',
+            handleOffDisabled: 'bg-gray-100 left-0',
             label:
               'text-gray-600 dark:text-gray-700 text-center font-bold w-8 border-box whitespace-nowrap select-none pl-1 pr-1 ml-[8px] mr-[15px]'
           }"
@@ -92,7 +101,7 @@ const deleteTodoItem = async () => {
         </Toggle>
       </div>
       <div class="ml-4 flex-shrink-0">
-        <button @click="deleteTodoItem">
+        <button data-testid="delete-todo" @click="deleteTodoItem(todoId)">
           <TrashIcon
             class="h-5 w-5 stroke-gray-600 dark:stroke-white hover:stroke-red-500 cursor-pointer"
           />
@@ -102,7 +111,7 @@ const deleteTodoItem = async () => {
     <div
       class="flex w-full flex-1 bg-white dark:bg-gray-200 mt-[10px] ml-[10px] mr-[10px] mb-[0px] rounded-[4px]"
     >
-      <div class="todo-html w-full text-left p-2" v-html="todoText"></div>
+      <div :for="todoId" class="todo-html w-full text-left p-2" v-html="todoText"></div>
     </div>
   </div>
 </template>

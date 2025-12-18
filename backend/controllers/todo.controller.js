@@ -1,6 +1,4 @@
-const mongoose = require('mongoose');
-
-const cleanTodo = (todo) => {
+const cleanTodoResponse = (todo) => {
   // Convert Mongoose document to plain object if needed
   const obj = todo.toObject ? todo.toObject() : { ...todo };
 
@@ -26,7 +24,7 @@ const TodoController = {
         user_id
       });
 
-      return res.status(201).json(todo);
+      return res.status(201).json(cleanTodoResponse(todo));
     } catch (error) {
       console.error('ADD TODO: ', error);
       return res.sendStatus(500);
@@ -56,11 +54,6 @@ const TodoController = {
       const data = req.body;
       const { Todo } = req.app.locals.models;
 
-      // // Vérification ObjectId
-      // if (!mongoose.Types.ObjectId.isValid(todo_id)) {
-      //   return res.status(400).json({ message: 'ID invalide, update impossible' });
-      // }
-
       const todo = await Todo.findOne({ _id: todo_id, user_id });
       if (!todo) return res.sendStatus(404);
 
@@ -80,11 +73,6 @@ const TodoController = {
       const user_id = req.sub;
       const todo_id = req.params.id;
       const { Todo } = req.app.locals.models;
-
-      // ✅ Vérifier si l'ID est un ObjectId MongoDB valide
-      if (!mongoose.Types.ObjectId.isValid(todo_id)) {
-        return res.status(400).json({ message: 'ID invalide' });
-      }
 
       const result = await Todo.deleteOne({ _id: todo_id, user_id });
       if (result.deletedCount === 0) return res.sendStatus(404);
