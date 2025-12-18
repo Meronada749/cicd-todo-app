@@ -1,113 +1,108 @@
-const { Sequelize } = require('sequelize');
+const cleanTodoResponse = (todo) => {
+  // Convert Mongoose document to plain object if needed
+  const obj = todo.toObject ? todo.toObject() : { ...todo };
+
+  return {
+    id: obj._id.toString(),
+    text: obj.text,
+    date: obj.date,
+    completed: obj.completed
+  };
+};
 
 const TodoController = {
   createTodo: async (req, res) => {
-    const user_id = req.sub;
-    const { text, date } = req.body;
-    const { Todo } = req.app.locals.models;
+    try {
+      const user_id = req.sub;
+      const { text, date } = req.body;
+      const { Todo } = req.app.locals.models;
 
-    await Todo.create({
-      text: text,
-      date: date,
-      completed: false,
-      user_id: user_id
-    })
-      .then((result) => {
-        return res.status(201).json(result);
-      })
-      .catch((error) => {
-        console.error('ADD TODO: ', error);
-        return res.status(500);
+      const todo = await Todo.create({
+        text,
+        date,
+        completed: false,
+        user_id
       });
-  },
-  getAllTodo: async (req, res) => {
-    const user_id = req.sub;
-    const { Todo } = req.app.locals.models;
 
-    await Todo.findAll({
-      where: { user_id: user_id },
-      order: [['date', 'ASC']],
-      attributes: { exclude: ['user_id'] }
-    })
-      .then((result) => {
-        if (result) {
-          return res.status(200).json(result);
-        } else {
-          return res.status(404);
-        }
-      })
-      .catch((error) => {
-        console.error('GET ALL TODO: ', error);
-        return res.status(500);
-      });
-  },
-  editTodo: async (req, res) => {
-    const user_id = req.sub;
-    const query = { id: req.params.id, user_id: user_id };
-    const data = req.body;
-    const { Todo } = req.app.locals.models;
-
-    const result = await Todo.findOne({ where: query });
-    if (result) {
-      result.completed = data.completed ? data.completed : false;
-      result.text = data.text ? data.text : result.text;
-      result.date = data.date ? data.date : result.date;
-      await result
-        .save()
-        .then(() => {
-          return res.status(200).json(result);
-        })
-        .catch((error) => {
-          console.error('UPDATE TODO: ', error);
-          return res.status(500);
-        });
-    } else {
-      return res.status(404);
+      return res.status(201).json(cleanTodoResponse(todo));
+    } catch (error) {
+      console.error('ADD TODO: ', error);
+      return res.sendStatus(500);
     }
   },
-  deleteTodo: (req, res) => {
-    const user_id = req.sub;
-    const todo_id = req.params.id;
-    const query = { id: todo_id, user_id: user_id };
-    const { Todo } = req.app.locals.models;
+  getAllTodo: async (req, res) => {
+    try {
+      const user_id = req.sub;
+      const { Todo } = req.app.locals.models;
 
-    Todo.destroy({
-      where: query
-    })
-      .then(() => {
-        return res.status(200).json({ id: todo_id });
-      })
-      .catch((error) => {
-        console.error('DELETE TODO: ', error);
-        return res.status(500);
-      });
+      const todos = await Todo.find({ user_id }).sort({ date: 1 }).select('-user_id -__v');
+      console.log(
+        'todos',
+        todos.map((t) => cleanTodo(t))
+      );
+      if (todos) return res.status(200).json(todos.map((t) => cleanTodo(t)));
+      else return res.sendStatus(404);
+    } catch (error) {
+      console.error('GET ALL TODO: ', error);
+      return res.sendStatus(500);
+    }
   },
-  getSearchTodo: async (req, res) => {
-    const user_id = req.sub;
-    const query = req.query.q;
-    const { Todo } = req.app.locals.models;
+  editTodo: async (req, res) => {
+    try {
+      const user_id = req.sub;
+      const todo_id = req.params.id;
+      const data = req.body;
+      const { Todo } = req.app.locals.models;
 
-    await Todo.findAll({
-      where: [
-        {
-          user_id: user_id
-        },
-        Sequelize.literal(`MATCH (text) AGAINST ('*${query}*' IN BOOLEAN MODE)`)
-      ],
-      order: [['date', 'ASC']],
-      attributes: { exclude: ['user_id'] }
-    })
-      .then((result) => {
-        if (result) {
-          return res.status(200).json(result);
-        } else {
-          return res.status(404);
-        }
+      const todo = await Todo.findOne({ _id: todo_id, user_id });
+      if (!todo) return res.sendStatus(404);
+
+      todo.completed = data.completed ?? todo.completed;
+      todo.text = data.text ?? todo.text;
+      todo.date = data.date ?? todo.date;
+
+      await todo.save();
+      return res.status(200).json(todo);
+    } catch (error) {
+      console.error('UPDATE TODO: ', error);
+      return res.sendStatus(500);
+    }
+  },
+  deleteTodo: async (req, res) => {
+    try {
+      const user_id = req.sub;
+      const todo_id = req.params.id;
+      const { Todo } = req.app.locals.models;
+
+      const result = await Todo.deleteOne({ _id: todo_id, user_id });
+      if (result.deletedCount === 0) return res.sendStatus(404);
+
+      return res.status(200).json({ id: todo_id });
+    } catch (error) {
+      console.error('DELETE TODO: ', error);
+      return res.sendStatus(500);
+    }
+  },
+
+  getSearchTodo: async (req, res) => {
+    try {
+      const user_id = req.sub;
+      const query = req.query.q;
+      const { Todo } = req.app.locals.models;
+
+      const todos = await Todo.find({
+        user_id,
+        $text: { $search: query }
       })
-      .catch((error) => {
-        console.error('SEARCH TODO: ', error);
-        return res.status(500);
-      });
+        .sort({ date: 1 })
+        .select('-user_id');
+
+      if (todos.length > 0) return res.status(200).json(todos);
+      else return res.sendStatus(404);
+    } catch (error) {
+      console.error('SEARCH TODO: ', error);
+      return res.sendStatus(500);
+    }
   }
 };
 
