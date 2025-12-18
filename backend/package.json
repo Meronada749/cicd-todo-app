@@ -8,6 +8,7 @@
     "test:dev": "jest --runInBand --watch",
     "test:ci": "jest --coverage --ci --silent",
     "lint": "eslint . --fix --ignore-pattern .gitignore",
+    "lint:ci": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern .gitignore",
     "format": "prettier --write ."
   },
   "keywords": [],

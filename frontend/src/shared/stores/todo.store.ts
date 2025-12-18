@@ -12,77 +12,116 @@ interface ResponseTodoData {
 }
 
 interface TodoState {
-  allTodo: Todo[] | null;
-  loading: boolean | false;
+  allTodo: Todo[];
+  loading: boolean;
 }
 
 export const useTodo = defineStore('todo', {
   state: (): TodoState => ({
-    allTodo: null,
+    allTodo: [],
     loading: false
   }),
+
   actions: {
+    // Crée un nouveau todo
     async createTodo(todoForm: TodoForm) {
       this.loading = true;
-      await createTodo(todoForm).then((response: ResponseData) => {
+      try {
+        const response = (await createTodo(todoForm)) as ResponseData;
         const todoResponse = response as unknown as ResponseTodoData;
-        // normalize response to Todo (convert date string to Date)
+
+        // fallback temporaire si id non renvoyé
         const todo: Todo = {
-          id: todoResponse.id,
-          date: new Date(todoResponse.date),
+          id: todoResponse.id ? String(todoResponse.id) : `temp-${Date.now()}`,
           text: todoResponse.text,
-          completed: todoResponse.completed
+          completed: todoResponse.completed,
+          date: new Date(todoResponse.date)
         };
-        // ajoute le todo dans le tableau
-        if (this.allTodo) {
-          this.allTodo.push(todo);
-          this.allTodo = this.allTodo.sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          );
-        }
+
+        // ajoute le todo dans le tableau réactif
+        this.allTodo = [...this.allTodo, todo];
+
+        // tri par date si nécessaire
+        this.allTodo.sort((a, b) => a.date.getTime() - b.date.getTime());
+      } catch (error) {
+        console.error('Erreur createTodo:', error);
+      } finally {
         this.loading = false;
-      });
+      }
     },
+
+    // Met à jour un todo existant
     async updateTodo(id: string, todoForm: TodoUpdateForm) {
-      await updateTodo(id, todoForm).then((response: ResponseData) => {
+      try {
+        const response = (await updateTodo(id, todoForm)) as ResponseData;
         const todoResponse = response as unknown as ResponseTodoData;
-        if (this.allTodo) {
-          // mets à jour le todo dans le tableau
-          this.allTodo = this.allTodo.map((todo) =>
-            todo.id === todoResponse.id
-              ? {
-                  ...todo,
-                  id: todoResponse.id,
-                  date: new Date(todoResponse.date),
-                  text: todoResponse.text,
-                  completed: todoResponse.completed
-                }
-              : todo
-          );
-        }
-      });
+
+        this.allTodo = this.allTodo.map((todo) =>
+          todo.id === todoResponse.id
+            ? {
+                ...todo,
+                text: todoResponse.text,
+                completed: todoResponse.completed,
+                date: new Date(todoResponse.date)
+              }
+            : todo
+        );
+      } catch (error) {
+        console.error('Erreur updateTodo:', error);
+      }
     },
+
+    // Supprime un todo
     async deleteTodo(id: string) {
-      await deleteTodo(id).then((response: ResponseData) => {
+      try {
+        const response = (await deleteTodo(id)) as ResponseData;
         const todoResponse = response as unknown as ResponseTodoData;
-        if (this.allTodo) {
-          // supprime le todo du tableau
-          this.allTodo = this.allTodo.filter((todo) => todo.id !== todoResponse.id);
-        }
-      });
+
+        this.allTodo = this.allTodo.filter((todo) => todo.id !== todoResponse.id);
+      } catch (error) {
+        console.error('Erreur deleteTodo:', error);
+      }
     },
+
+    // Récupère tous les todos
     async fetchAllTodo() {
       this.loading = true;
-      this.allTodo = await fetchAllTodo();
-      this.loading = false;
+      try {
+        const response = await fetchAllTodo();
+        const todosResponse = (response ?? []) as unknown as ResponseTodoData[];
+
+        this.allTodo = todosResponse.map((todo) => ({
+          id: String(todo.id),
+          date: new Date(todo.date),
+          text: todo.text,
+          completed: todo.completed
+        }));
+      } catch (error) {
+        console.error('Erreur fetchAllTodo:', error);
+        this.allTodo = [];
+      } finally {
+        this.loading = false;
+      }
     },
+
+    // Recherche les todos par query
     async fetchSearchTodo(query: string) {
       this.loading = true;
-      this.allTodo = await fetchSearchTodo(query);
-      if(!this.allTodo) {
+      try {
+        const todosResponse = (await fetchSearchTodo(query)) as ResponseTodoData[] | null;
+        this.allTodo =
+          todosResponse?.map((todo) => ({
+            id: String(todo.id),
+            date: new Date(todo.date),
+            text: todo.text,
+            completed: todo.completed
+          })) ?? [];
+      } catch (error) {
+        console.error('Erreur fetchSearchTodo:', error);
         this.allTodo = [];
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     }
   }
 });
