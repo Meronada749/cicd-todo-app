@@ -5,42 +5,46 @@ const { JWT_SECRET } = require('../config/keys');
 
 // remove password from user object
 const cleanUser = (user) => {
-  // eslint-disable-next-line no-unused-vars
-  const { password, ...cleanedUser } = user.get({ plain: true });
+  const { password, ...cleanedUser } = user.toObject();
   return cleanedUser;
 };
 
 const AuthController = {
   loginUser: async (req, res) => {
-    const { User } = req.app.locals.models;
-    await User.findOne({
-      where: { email: req.body.email.toLowerCase() }
-    })
-      .then((result) => {
-        if (result) {
-          if (bcrypt.compareSync(req.body.password, result.password)) {
-            const user = cleanUser(result);
-            const token = jsonwebtoken.sign({}, JWT_SECRET, {
-              subject: result.id.toString(),
-              expiresIn: 60 * 60 * 24 * 30 * 6,
-              algorithm: 'RS256'
-            });
-            return res.status(200).json({ user: user, token: token });
-          } else {
-            return res.status(400).json({
-              message: 'Mauvais email ou mot de passe!'
-            });
-          }
-        } else {
-          return res.status(404).json({
-            message: "Ce compte n'existe pas !"
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('LOGIN USER: ', error);
-        return res.status(400).json(null);
+    try {
+      const { User } = req.app.locals.models;
+      const email = req.body.email.toLowerCase();
+      const password = req.body.password;
+
+      // find user by email (Mongoose)
+      const userDoc = await User.findOne({ email });
+
+      if (!userDoc) {
+        return res.status(404).json({
+          message: "Ce compte n'existe pas !"
+        });
+      }
+
+      // check password
+      const validPassword = await bcrypt.compare(password, userDoc.password);
+      if (!validPassword) {
+        return res.status(400).json({
+          message: 'Mauvais email ou mot de passe!'
+        });
+      }
+
+      // generate JWT
+      const token = jsonwebtoken.sign({}, JWT_SECRET, {
+        subject: userDoc._id.toString(), // <-- IMPORTANT
+        expiresIn: 60 * 60 * 24 * 30 * 6, // 6 months
+        algorithm: 'RS256'
       });
+
+      return res.status(200).json({ user: cleanUser(userDoc), token });
+    } catch (error) {
+      console.error('LOGIN USER: ', error);
+      return res.status(500).json({ message: 'Erreur serveur' });
+    }
   }
 };
 

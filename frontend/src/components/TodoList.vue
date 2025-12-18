@@ -112,7 +112,7 @@ const clearSearchTodo = async () => {
         <ul role="list" class="mt-2 flex flex-col list-none" data-testid="todo-list">
           <li v-for="todo in allTodo" :key="todo.id">
             <TodoItem
-              :todoId="Number(todo.id)"
+              :todoId="todo.id"
               :todoDate="todo.date.toString()"
               :todoCompleted="todo.completed"
               :todoText="todo.text"
