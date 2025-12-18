@@ -12,37 +12,6 @@ const props = defineProps<{
   todoCompleted: boolean;
 }>();
 
-<<<<<<< HEAD
-=======
-const props = defineProps({
-  todoDate: {
-    type: String,
-    required: true
-  },
-  todoText: {
-    type: String,
-    required: true
-  },
-  todoId: {
-    type: Number,
-    required: true
-  },
-  todoCompleted: {
-    type: Boolean,
-    required: true
-  }
-});
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toggleTodoCompleted = async (id: any, completed: boolean) => {
-  await todoStore.updateTodo(id, { completed: completed });
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const deleteTodoItem = async (id: any) => {
-  await todoStore.deleteTodo(id);
-};
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
 
 const emit = defineEmits(['update:todoCompleted']);
 
@@ -101,11 +70,7 @@ const deleteTodoItem = async () => {
       <div class="flex flex-1 align-middle justify-end">
         <Toggle
           v-model="todoCompletedLocal"
-<<<<<<< HEAD
           @change="toggleTodo"
-=======
-          @change="toggleTodoCompleted(todoId, todoCompletedLocal)"
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
           :classes="{
             container:
               'inline-block w-[70px] rounded-full outline-none focus:ring-2 focus:ring-slate-400 focus:ring-opacity-30',
