@@ -18,12 +18,12 @@ const UserController = {
 
       return res.status(201).json({ user: cleanUser(user) });
     } catch (error) {
-      console.error('ADD USER:', error.code);
+      console.error("ADD USER:", error.code);
 
       let errorMsg = "Erreur lors de l'inscription !";
 
       if (error.code === 11000) {
-        errorMsg = 'Un compte avec cet email existe déjà !';
+        errorMsg = "Un compte avec cet email existe déjà !";
       }
 
       return res.status(409).json({ message: errorMsg });
@@ -35,13 +35,13 @@ const UserController = {
       const user_id = req.sub;
       const { User } = req.app.locals.models;
 
-      const user = await User.findById(user_id).select('-password -__v');
+      const user = await User.findById(user_id).select("-password -__v");
 
       if (!user) return res.sendStatus(404);
 
       return res.status(200).json({ user });
     } catch (error) {
-      console.error('GET USER:', error);
+      console.error("GET USER:", error);
       return res.sendStatus(500);
     }
   },
@@ -65,7 +65,7 @@ const UserController = {
 
       return res.status(200).json({ user: cleanUser(user) });
     } catch (error) {
-      console.error('UPDATE USER:', error);
+      console.error("UPDATE USER:", error);
       return res.sendStatus(500);
     }
   },
@@ -81,7 +81,7 @@ const UserController = {
 
       return res.status(200).json({ id: user_id });
     } catch (error) {
-      console.error('DELETE USER:', error);
+      console.error("DELETE USER:", error);
       return res.sendStatus(500);
     }
   }
