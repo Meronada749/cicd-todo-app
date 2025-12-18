@@ -107,8 +107,17 @@ export const useTodo = defineStore('todo', {
     // Recherche les todos par query
     async fetchSearchTodo(query: string) {
       this.loading = true;
-      this.allTodo = await fetchSearchTodo(query);
-      if (!this.allTodo) {
+      try {
+        const todosResponse = (await fetchSearchTodo(query)) as ResponseTodoData[] | null;
+        this.allTodo =
+          todosResponse?.map((todo) => ({
+            id: String(todo.id),
+            date: new Date(todo.date),
+            text: todo.text,
+            completed: todo.completed
+          })) ?? [];
+      } catch (error) {
+        console.error('Erreur fetchSearchTodo:', error);
         this.allTodo = [];
       } finally {
         this.loading = false;

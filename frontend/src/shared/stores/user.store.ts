@@ -81,6 +81,7 @@ export const useUser = defineStore('user', {
         const response: ResponseData = await updateCurrentUser(userForm);
         if ('user' in response && response.user) {
           this.currentUser = response.user as User;
+          
         }
       }
     },

@@ -4,9 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 
 // Load env vars
-if(process.env.NODE_ENV !== 'test') {
 process.loadEnvFile('./.env');
-}
 
 const { connectDB, mongoose: db } = require('./config/database');
 const { User, Todo } = require('./models');
@@ -32,11 +30,6 @@ function createApp() {
   // API routes
   app.use(router);
 
-    // Health check
-  app.get('/health', (req, res) => {
-    res.sendStatus(200);
-  });
-  
   // TEST-ONLY helper: reset DB between specs
   if (process.env.NODE_ENV === 'test') {
     const testApi = require('./routes/test.api');
