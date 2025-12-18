@@ -18,19 +18,16 @@ const onSubmit = async () => {
   errorMsg.value = '';
   errorText.value = !text.value.trim();
   errorDate.value = !date.value;
-
   if (!date.value || !text.value.trim()) {
     errorMsg.value = 'Veuillez renseigner tous les champs';
     return;
   }
-
   try {
     const todoForm: TodoForm = { date: new Date(date.value), text: text.value.trim() };
     loading.value = true;
-
     await todoStore.createTodo(todoForm);
 
-    // clear form
+    // clear form after successful submission
     text.value = '';
     date.value = '';
   } catch (e) {
@@ -42,17 +39,20 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+  <div
+    class="w-full bg-white rounded-lg shadow dark:border md:mt-0 xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+  >
     <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-      <h2 class="mt-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+      <h2
+        class="mt-1 text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
+      >
         Nouvelle tâche
       </h2>
-
       <p v-if="errorMsg">
         <span class="flex items-center text-sm font-medium text-gray-900 dark:text-white me-3">
           <span class="inline w-3 h-3 me-3 bg-red-500 rounded-full"></span>
-          {{ errorMsg }}
-        </span>
+          {{ errorMsg }}</span
+        >
       </p>
       <div class="space-y-4 md:space-y-6">
         <form @submit.prevent="onSubmit">

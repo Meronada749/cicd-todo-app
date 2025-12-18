@@ -36,8 +36,7 @@ const onSubmit = async (formValues: Record<string, any>) => {
       router.push('/login');
     });
   } catch (e) {
-    console.log("deb", e);
-    errorMsg.value = e || 'An error occurred';
+    errorMsg.value = (e as { error: string }).error || 'An error occurred';
     loading.value = false;
   }
 };
