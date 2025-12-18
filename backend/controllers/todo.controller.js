@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const mongoose = require('mongoose');
 
 const cleanTodo = (todo) => {
@@ -12,38 +11,25 @@ const cleanTodo = (todo) => {
     completed: obj.completed
   };
 };
-=======
-const { Sequelize } = require('sequelize');
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
 
 const TodoController = {
   createTodo: async (req, res) => {
-    const user_id = req.sub;
-    const { text, date } = req.body;
-    const { Todo } = req.app.locals.models;
+    try {
+      const user_id = req.sub;
+      const { text, date } = req.body;
+      const { Todo } = req.app.locals.models;
 
-    await Todo.create({
-      text: text,
-      date: date,
-      completed: false,
-      user_id: user_id
-    })
-      .then((result) => {
-        return res.status(201).json(result);
-      })
-      .catch((error) => {
-        console.error('ADD TODO: ', error);
-        return res.status(500);
+      const todo = await Todo.create({
+        text: text,
+        date: date,
+        completed: false,
+        user_id: user_id
       });
-<<<<<<< HEAD
-
       return res.status(201).json(todo);
     } catch (error) {
       console.error('ADD TODO: ', error);
       return res.sendStatus(500);
     }
-=======
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
   },
   getAllTodo: async (req, res) => {
     const user_id = req.sub;
@@ -72,7 +58,6 @@ const TodoController = {
     const data = req.body;
     const { Todo } = req.app.locals.models;
 
-<<<<<<< HEAD
       // // Vérification ObjectId
       // if (!mongoose.Types.ObjectId.isValid(todo_id)) {
       //   return res.status(400).json({ message: 'ID invalide, update impossible' });
@@ -90,24 +75,6 @@ const TodoController = {
     } catch (error) {
       console.error('UPDATE TODO: ', error);
       return res.sendStatus(500);
-=======
-    const result = await Todo.findOne({ where: query });
-    if (result) {
-      result.completed = data.completed ? data.completed : false;
-      result.text = data.text ? data.text : result.text;
-      result.date = data.date ? data.date : result.date;
-      await result
-        .save()
-        .then(() => {
-          return res.status(200).json(result);
-        })
-        .catch((error) => {
-          console.error('UPDATE TODO: ', error);
-          return res.status(500);
-        });
-    } else {
-      return res.status(404);
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
     }
   },
   deleteTodo: (req, res) => {
@@ -116,7 +83,6 @@ const TodoController = {
     const query = { id: todo_id, user_id: user_id };
     const { Todo } = req.app.locals.models;
 
-<<<<<<< HEAD
       // ✅ Vérifier si l'ID est un ObjectId MongoDB valide
       if (!mongoose.Types.ObjectId.isValid(todo_id)) {
         return res.status(400).json({ message: 'ID invalide' });
@@ -141,13 +107,6 @@ const TodoController = {
       const todos = await Todo.find({
         user_id,
         $text: { $search: query }
-=======
-    Todo.destroy({
-      where: query
-    })
-      .then(() => {
-        return res.status(200).json({ id: todo_id });
->>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
       })
       .catch((error) => {
         console.error('DELETE TODO: ', error);
