@@ -4,7 +4,7 @@ import { createTodo, deleteTodo, fetchAllTodo, fetchSearchTodo, updateTodo } fro
 import type { ResponseData } from '../helpers';
 
 interface ResponseTodoData {
-  id: string;
+  id: number;
   date: string;
   text: string;
   completed: boolean;
@@ -76,11 +76,19 @@ export const useTodo = defineStore('todo', {
       try {
         const response = (await deleteTodo(id)) as ResponseData;
         const todoResponse = response as unknown as ResponseTodoData;
+<<<<<<< HEAD
 
         this.allTodo = this.allTodo.filter((todo) => todo.id !== todoResponse.id);
       } catch (error) {
         console.error('Erreur deleteTodo:', error);
       }
+=======
+        if (this.allTodo) {
+          // supprime le todo du tableau
+          this.allTodo = this.allTodo.filter((todo) => todo.id !== Number(todoResponse.id));
+        }
+      });
+>>>>>>> parent of 3403c0b (Merge pull request #22 from Meronada749/feature/mongo)
     },
 
     // Récupère tous les todos

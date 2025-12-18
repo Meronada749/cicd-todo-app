@@ -6,8 +6,8 @@ const cookieParser = require('cookie-parser');
 // Load env vars
 process.loadEnvFile('./.env');
 
-const { connectDB, mongoose: db } = require('./config/database');
-const { User, Todo } = require('./models');
+const { sequelize: db } = require('./config/database');
+const { initModels } = require('./models');
 const router = require('./routes');
 
 const PORT = process.env.PORT || '3000';
@@ -54,10 +54,14 @@ async function initApp(options = {}) {
 
   const theApp = createApp();
 
-  await connectDB();
+  await db.authenticate();
 
-  // Expose to controllers
-  theApp.locals.models = { User, Todo };
+  // Initialize all models & expose to controllers
+  const models = initModels(db);
+  theApp.locals.models = models;
+
+  // Sync schema (or run migrations if you prefer)
+  await db.sync();
 
   if (listen) {
     server = theApp.listen(port, () => {

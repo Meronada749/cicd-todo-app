@@ -77,7 +77,7 @@ const clearSearchTodo = () => {
         <ul role="list" class="mt-2 flex flex-col list-none" data-testid="todo-list">
           <li v-for="todo in filteredTodos" :key="todo.id">
             <TodoItem
-              :todoId="todo.id"
+              :todoId="Number(todo.id)"
               :todoDate="todo.date.toString()"
               :todoCompleted="todo.completed"
               :todoText="todo.text"
