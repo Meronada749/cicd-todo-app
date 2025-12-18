@@ -21,15 +21,15 @@ const schema = Yup.object().shape({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const onSubmit = async (formValues: Record<string, any>) => {
-  loading.value = true;
-  errorMsg.value = '';
-
   try {
-    await userStore.login(formValues as LoginForm);
-    router.push('/');
-  } catch (e: any) {
-    errorMsg.value = e?.message || 'Erreur de connexion';
-  } finally {
+    loading.value = true;
+    await userStore.login(formValues as LoginForm).then(() => {
+      errorMsg.value = '';
+      loading.value = false;
+      router.push('/');
+    });
+  } catch (e) {
+    errorMsg.value = e as string;
     loading.value = false;
   }
 };
