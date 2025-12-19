@@ -116,3 +116,27 @@ jobs:
           browser: ${{ matrix.browser }}
           wait-on-timeout: 60
           config: baseUrl=http://localhost:4173
+
+  Build_frontend:
+    needs: test_e2e
+    name: Build frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Tells GitHub to pull your repository’s code into the runner
+        uses: actions/checkout@v4
+
+      - name: Install node so that we can use the npm commands
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Build
+        run: npm run build:only
