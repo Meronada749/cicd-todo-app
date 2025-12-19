@@ -2,16 +2,12 @@ const cleanTodo = (todo) => {
   // Convert Mongoose document to plain object if needed
   const obj = todo.toObject ? todo.toObject() : { ...todo };
 
-  // Replace _id with id as string
-  obj.id = obj._id.toString();
-  delete obj._id;
-
-  // Convert user_id to string
-  if (obj.user_id && typeof obj.user_id.toString === 'function') {
-    obj.user_id = obj.user_id.toString();
-  }
-
-  return obj;
+  return {
+    id: obj._id.toString(),
+    text: obj.text,
+    date: obj.date,
+    completed: obj.completed
+  };
 };
 
 const TodoController = {
