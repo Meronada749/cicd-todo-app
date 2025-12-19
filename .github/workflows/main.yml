@@ -147,35 +147,36 @@ jobs:
           name: frontend-artifact
           path: frontend/dist
 
-  # Deploy:
-  #   needs: Build_frontend
-  #   name: Deploy App
-  #   runs-on: ubuntu-latest
+  Deploy:
+    needs: Build_frontend
+    name: Deploy App
+    runs-on: ubuntu-latest
 
-  #   defaults:
-  #     run:
-  #       working-directory: dist
+    steps:
+      - name: Tells GitHub to pull your repository’s code into the runner
+        uses: actions/checkout@v4
 
-  #   steps:
-  #     - name: Tells GitHub to pull your repository’s code into the runner
-  #       uses: actions/checkout@v4
+      - name: Artifact download
+        uses: actions/download-artifact@v5
+        with:
+          name: frontend-artifact
+          path: frontend/dist
 
-  #     - name: Artifact upload
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: my-artifact
-  #         path: /dist
+      - name: VPN setup
+        uses: ./.github/actions/vpn
+        with:
+          host: ${{ secrets.VPN_HOST }}
+          port: ${{ secrets.VPN_PORT }}
+          username: ${{ secrets.VPN_USERNAME }}
+          password: ${{ secrets.VPN_PASS }}
+          ping_host: ${{ secrets.TEST_HOST_IP }}
 
-  #     - name: VPN Connect
-
-  # - name: SCP
-
-  # - name: Copy files via SSH
+  # - name: Copy files via SSH (SCP)
   #   uses: appleboy/scp-action@v1
   #   with:
-  #     host: ${{ secrets.HOST }}
-  #     username: ${{ secrets.USERNAME }}
-  #     password: ${{ secrets.PASSWORD }}
-  #     port: ${{ secrets.PORT }}
-  #     source: "tests/a.txt,tests/b.txt"
-  #     target: your_server_target_folder_path
+  #     host: ${{ secrets.TEST_IP_HOST }}
+  #     username: ${{ secrets.TEST_USERNAME }}
+  #     password: ${{ secrets.TEST_PASSWORD }}
+  #     port: ${{ secrets.SSH_PORT }} //22
+  #     source: "./frontend/dist, /backend, docker-compose.yml
+  #     target: /myapp
