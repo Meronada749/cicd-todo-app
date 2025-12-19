@@ -162,6 +162,15 @@ jobs:
           name: frontend-artifact
           path: frontend/dist
 
+      - name: Install node so that we can use the npm commands
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Bring backend into deploy & install dependencies
+        working-directory: backend
+        run: npm ci
+
       - name: VPN setup
         uses: ./.github/actions/vpn
         with:
@@ -171,12 +180,19 @@ jobs:
           password: ${{ secrets.VPN_PASS }}
           ping_host: ${{ secrets.TEST_HOST_IP }}
 
-  # - name: Copy files via SSH (SCP)
-  #   uses: appleboy/scp-action@v1
-  #   with:
-  #     host: ${{ secrets.TEST_IP_HOST }}
-  #     username: ${{ secrets.TEST_USERNAME }}
-  #     password: ${{ secrets.TEST_PASSWORD }}
-  #     port: ${{ secrets.SSH_PORT }} //22
-  #     source: "./frontend/dist, /backend, docker-compose.yml
-  #     target: /myapp
+      - name: Copy files via SSH (SCP)
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.TEST_HOST_IP }}
+          username: ${{ secrets.TEST_USERNAME }}
+          password: ${{ secrets.TEST_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "./frontend/dist, /backend, docker-compose.yaml"
+          target: ~/myapp
+
+      - name: Create backend .env
+        working-directory: ~/myapp
+        run: |
+          cd backend && echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
+          docker compose up -d
+          cd backend && npm run start:prod && pm2 dev
