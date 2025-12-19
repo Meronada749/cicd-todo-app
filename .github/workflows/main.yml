@@ -193,6 +193,10 @@ jobs:
       - name: Create backend .env
         working-directory: myapp
         run: |
-          cd backend && echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
+          cd ~/myapp/backend
+          echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
+          cd ~/myapp
           docker compose up -d
-          cd backend && npm run start:prod && pm2 dev
+          cd ~/myapp/backend
+          npm run start:prod
+          pm2 dev
