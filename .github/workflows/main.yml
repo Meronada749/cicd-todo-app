@@ -140,3 +140,42 @@ jobs:
 
       - name: Run Build
         run: npm run build:only
+
+      - name: Artifact upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifact
+          path: /dist
+
+  # Deploy:
+  #   needs: Build_frontend
+  #   name: Deploy App
+  #   runs-on: ubuntu-latest
+
+  #   defaults:
+  #     run:
+  #       working-directory: dist
+
+  #   steps:
+  #     - name: Tells GitHub to pull your repository’s code into the runner
+  #       uses: actions/checkout@v4
+
+  #     - name: Artifact upload
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: my-artifact
+  #         path: /dist
+
+  #     - name: VPN Connect
+
+  # - name: SCP
+
+  # - name: Copy files via SSH
+  #   uses: appleboy/scp-action@v1
+  #   with:
+  #     host: ${{ secrets.HOST }}
+  #     username: ${{ secrets.USERNAME }}
+  #     password: ${{ secrets.PASSWORD }}
+  #     port: ${{ secrets.PORT }}
+  #     source: "tests/a.txt,tests/b.txt"
+  #     target: your_server_target_folder_path
