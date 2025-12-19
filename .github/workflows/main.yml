@@ -191,7 +191,7 @@ jobs:
           target: ~/myapp
 
       - name: Create backend .env
-        working-directory: ~/myapp
+        working-directory: myapp
         run: |
           cd backend && echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
           docker compose up -d
