@@ -119,7 +119,7 @@ jobs:
 
   Build_frontend:
     needs: test_e2e
-    name: Build frontend
+    name: build frontend
     runs-on: ubuntu-latest
 
     defaults:
@@ -149,14 +149,14 @@ jobs:
 
   Deploy:
     needs: Build_frontend
-    name: Deploy App
+    name: deploy App
     runs-on: ubuntu-latest
 
     steps:
       - name: Tells GitHub to pull your repository’s code into the runner
         uses: actions/checkout@v4
 
-      - name: Artifact download
+      - name: Built artifact download
         uses: actions/download-artifact@v5
         with:
           name: frontend-artifact
@@ -187,16 +187,21 @@ jobs:
           username: ${{ secrets.TEST_USERNAME }}
           password: ${{ secrets.TEST_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./frontend/dist, /backend, docker-compose.yaml"
+          source: "./frontend/dist,/backend,docker-compose.yaml"
           target: ~/myapp
 
-      - name: Create backend .env
-        working-directory: myapp
-        run: |
-          cd ~/myapp/backend
-          echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
-          cd ~/myapp
-          docker compose up -d
-          cd ~/myapp/backend
-          npm run start:prod
-          pm2 dev
+      - name: Execute remote SSH commands
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.TEST_HOST_IP }}
+          username: ${{ secrets.TEST_USERNAME }}
+          password: ${{ secrets.TEST_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/myapp/backend
+            echo 'DB_URL="${{ secrets.DB_URL }}"' > .env
+            cd ~/myapp
+            docker compose up -d
+            cd ~/myapp/backend
+            npm run start:prod
+            pm2 save
